@@ -1,6 +1,8 @@
 
 #include "memory_dumper.h"
 
+
+/************* EXTERN VARIABLES *************/
 extern FILE* logfile;
 
 memory_dumper_t::memory_dumper_t(ADDRINT jump_target) : dos_header(nullptr),

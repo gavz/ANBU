@@ -1,25 +1,26 @@
 
 #include "memory_movement_detection.h"
 
+/************* EXTERN VARIABLES *************/
+extern FILE*								logfile;			// log file handler
+extern ADDRINT								main_base_address;	// main base address of binary, to start
+																// reading PE file
+extern KNOB<string>							KnobLogFile;		
+extern std::vector<dll_import_struct_t*>	dll_imports;
+extern bool									check_first_thunk;
+
 /******************* Data for the unpacker *******************/
-extern FILE*						logfile;			// log file handler
-std::map<ADDRINT, mem_access_t>		shadow_mem;			// map memory addresses with memory
-														// access permissions.
-std::vector<mem_cluster_t>			clusters;			// vector to store all the unpacked memory
-														// clusters found
-ADDRINT								saved_addr;			// temporary variable needed for storing state between
-														// two analysis routines
-extern ADDRINT						main_base_address;	// main base address of binary, to start
-														// reading PE file
+std::map<ADDRINT, mem_access_t>				shadow_mem;			// map memory addresses with memory
+																// access permissions.
+std::vector<mem_cluster_t>					clusters;			// vector to store all the unpacked memory
+																// clusters found
+ADDRINT										saved_addr;			// temporary variable needed for storing state between
+																// two analysis routines
 
 /******************* Variables for dump *******************/
-memory_dumper_t*					memory_dumper;		// dumper for the PE file
+memory_dumper_t*							memory_dumper;		// dumper for the PE file
 
-extern KNOB<string> KnobLogFile;
 
-extern std::vector<dll_import_struct_t*> dll_imports;
-
-extern bool check_first_thunk;
 
 
 /******************* Functions for the unpacker *******************/

@@ -1,12 +1,16 @@
 
 #include "generic_instrumentation.h"
 
-extern FILE *logfile; // log file handler
-ADDRINT main_base_address;
 
-dll_import_struct_t *aux = nullptr;
-std::vector<dll_import_struct_t*> dll_imports;
-bool check_first_thunk = false;
+/************* EXTERN VARIABLES *************/
+extern FILE*						logfile; // log file handler
+
+
+/************* VARIABLES USED FOR MONITORING BINARY *************/
+ADDRINT								main_base_address;
+dll_import_struct_t*				aux = nullptr;
+std::vector<dll_import_struct_t*>	dll_imports;
+bool								check_first_thunk = false;
 
 
 void get_addresses_from_images(IMG img, VOID *v)

@@ -4,24 +4,24 @@
 #include "unpacker.h"
 
 
-FILE *logfile; // log file handler
+FILE*				logfile; // log file handler
  /*
  *   KNOB class to create arguments with PIN
  *   on this case, we will create an argument
  *   string for the user if wants to save
  *   logs in a file.
  */
-KNOB<string> KnobLogFile(
-	KNOB_MODE_WRITEONCE,
-	"pintool",
-	"l", // command acepted (-l)
-	"unpacker.log", // value of the command, log file name
-	"log file"
+KNOB<string>		KnobLogFile(
+			KNOB_MODE_WRITEONCE,
+			"pintool",
+			"l", // command acepted (-l)
+			"unpacker.log", // value of the command, log file name
+			"log file"
 );
 
 int main(int argc, char *argv[])
 {
-	fprintf(stderr, "+--<<<Generic Unpacker by F9>>>>--+\n");
+	fprintf(stderr, "+--<<< PIN-Pong by F9 >>>>--+\n");
 	/*
 	*	As we will use symbols...
 	*/
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "[ERROR] failed to open '%s'\n", KnobLogFile.Value().c_str());
 		return 1;
 	}
-	fprintf(logfile, "+--<<<Generic Unpacker by F9>>>>--+\n");
+	fprintf(logfile, "+--<<< PIN-Pong by F9 >>>>--+\n");
 
 	fprintf(stderr, "------ unpacking binary ------\n");
 	fprintf(logfile, "------ unpacking binary ------\n");

@@ -1,7 +1,9 @@
 
 #include "section_header.h"
 
+/************* EXTERN VARIABLES *************/
 extern FILE *logfile; // log file handler
+
 
 namespace pe_parser
 {

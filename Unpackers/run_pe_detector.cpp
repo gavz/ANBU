@@ -1,35 +1,34 @@
 
 #include "run_pe_detector.h"
 
+/************* EXTERN VARIABLES *************/
+extern FILE*								logfile;			// log file handler
+
 /********************** VARIABLES ****************************/
-extern FILE*						logfile;			// log file handler
+
 // Array for syscalls names one by one
-std::map<unsigned long, const char *> g_syscall_names;
+std::map<unsigned long, const char *>		g_syscall_names;
 // Addresses of syscalls
-ADDRINT SYS_NtCreateUserProcess, 
-		SYS_NtWriteVirtualMemory, 
-		SYS_NtResumeThread;
+ADDRINT										SYS_NtCreateUserProcess, 
+											SYS_NtWriteVirtualMemory, 
+											SYS_NtResumeThread;
+ADDRINT										SYS_NtDuplicateObject, 
+											SYS_NtOpenThread, 
+											SYS_NtDelayExecution;
+ADDRINT										SYS_NtOpenProcess, 
+											SYS_NtCreateProcess, 
+											SYS_NtCreateProcessEx;
+ADDRINT										SYS_NtAllocateVirtualMemory;
 
-ADDRINT SYS_NtDuplicateObject, 
-		SYS_NtOpenThread, 
-		SYS_NtDelayExecution;
+ADDRINT										entry_point;
 
-ADDRINT SYS_NtOpenProcess, 
-		SYS_NtCreateProcess, 
-		SYS_NtCreateProcessEx;
+map<HANDLE, std::vector<write_memory_t>>	process_data;
+write_memory_t*								write_mem = nullptr;
 
-ADDRINT SYS_NtAllocateVirtualMemory;
-
-ADDRINT entry_point;
-
-map<HANDLE, std::vector<write_memory_t>> process_data;
-write_memory_t* write_mem = nullptr;
-
-int g_process_handle_count = 0;
-HANDLE g_process_handle[256] = { 0 };
-
-int g_thread_handle_count = 0;
-HANDLE g_thread_handle[256] = { 0 };
+int											g_process_handle_count = 0;
+int											g_thread_handle_count = 0;
+HANDLE										g_process_handle[256] = { 0 };
+HANDLE										g_thread_handle[256] = { 0 };
 
 // code from rreat library
 void enum_syscalls()
