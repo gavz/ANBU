@@ -8,7 +8,7 @@ namespace pe_parser
 	optional_header_t::optional_header_t(ADDRINT address)
 	{
 		size_t copied_size, size_to_copy, size_magic_value = sizeof(uint16_t);
-		uint16_t magic_value;
+		uint16_t magic_value;	// this will be used to detect PE version
 		optional_header_correct = true;
 		is_64_bit = false;
 
@@ -16,7 +16,8 @@ namespace pe_parser
 
 		if (copied_size != size_magic_value)
 		{
-			fprintf(stderr, "Error, not possible to read magic value from file\n");
+			fprintf(stderr, "[ERROR] Error, not possible to read magic value from file\n");
+			fprintf(logfile, "[ERROR] Error, not possible to read magic value from file\n");
 			optional_header_correct = false;
 			return;
 		}
@@ -37,7 +38,8 @@ namespace pe_parser
 		}
 		else
 		{
-			fprintf(stderr, "Magic value is not correct: 0x%x\n", magic_value);
+			fprintf(stderr, "[ERROR] Magic value is not correct: 0x%x\n", magic_value);
+			fprintf(logfile, "[ERROR] Magic value is not correct: 0x%x\n", magic_value);
 			optional_header_correct = false;
 			return;
 		}

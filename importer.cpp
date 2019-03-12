@@ -4,9 +4,8 @@ Importer::Importer(pe_parser::dos_header_t *dos_header,
 	pe_parser::nt_header_t *nt_coff_header,
 	pe_parser::optional_header_t *optional_header,
 	pe_parser::data_directory_header_t *data_directory_header,
-	pe_parser::section_header_t *section_table_header)
+	pe_parser::section_header_t *section_table_header) : import_aux(nullptr)
 {
-	import_aux						= nullptr;
 	this->dos_header				= dos_header;
 	this->nt_coff_header			= nt_coff_header;
 	this->optional_header			= optional_header;
@@ -16,30 +15,45 @@ Importer::Importer(pe_parser::dos_header_t *dos_header,
 
 void Importer::ImporterAddNewDll(const char* dll_name)
 {
-	if (import_aux != nullptr)
+	// check if import aux contains some data
+	// in that case add it to dlls_and_functions
+	// vector, and set import_aux pointer to null
+	if (import_aux != nullptr) 
 	{
 		dlls_and_functions.push_back(*import_aux);
 		import_aux = nullptr;
 	}
+	// for each dll, we will create an import
+	// structure.
 	import_aux = new import_directory_names_struct_t();
 	import_aux->dll_name = dll_name;
 }
 
 void Importer::ImporterAddNewDll(const wchar_t* dll_name)
 {
+	// check if import aux contains some data
+	// in that case add it to dlls_and_functions
+	// vector, and set import_aux pointer to null
 	if (import_aux != nullptr)
 	{
 		dlls_and_functions.push_back(*import_aux);
 		import_aux = nullptr;
 	}
+	// Sorry wide char, we will use ascii...
 	char* dll_nameA = (char*)calloc(1, wcslen(dll_name) + 1);
 	wcstombs(dll_nameA, dll_name, wcslen(dll_name) + 1);
+	// for each dll, we will create an import
+	// structure.
+	import_aux = new import_directory_names_struct_t();
 	import_aux->dll_name = dll_nameA;
+	// we don't need this memory anymore
 	free(dll_nameA);
 }
 
 void Importer::ImporterAddNewAPI(const char* function_name)
 {
+	// Add new API by name, all the functions are imported
+	// in ascii
 	std::string aux(function_name);
 	import_aux->function_names.push_back(aux);
 	import_aux->name_or_ordinal.push_back(function_is_name);
@@ -47,12 +61,15 @@ void Importer::ImporterAddNewAPI(const char* function_name)
 
 void Importer::ImporterAddNewAPIOrdinal(uint16_t function_ordinal)
 {
+	// Add new API by ordinal, 16 bits ordinal.
 	import_aux->function_ordinals.push_back(function_ordinal);
 	import_aux->name_or_ordinal.push_back(function_is_ordinal);
 }
 
 void Importer::ImporterSetNewFirstThunk(uint32_t first_thunk)
 {
+	// RVA to the first thunk, it is necessary to point to the same
+	// IAT as the original file to dump the file correctly.
 	this->import_aux->first_thunk = first_thunk;
 }
 
@@ -64,6 +81,12 @@ std::vector<uint8_t> Importer::ImporterDumpToFile(uint32_t& rva_of_import_direct
 		dlls_and_functions.push_back(*import_aux);
 		import_aux = nullptr;
 	}
+
+	std::vector<uint8_t> buffer;
+
+	// if no dlls, return empty buffer
+	if (dlls_and_functions.empty())
+		return buffer;
 
 	// order by first thunk
 	// so when we have to dump it
@@ -198,7 +221,7 @@ std::vector<uint8_t> Importer::ImporterDumpToFile(uint32_t& rva_of_import_direct
 		// finally create new import directory
 		import_directory_aux.nameRVA = (
 			new_section_virtual_address + // base
-			size_for_original_first_thunk_and_import_directories + // plus size of original first thunk
+			(uint32_t)size_for_original_first_thunk_and_import_directories + // plus size of original first thunk
 			offset_of_dll_name // plus offset of dll name
 			);
 
@@ -216,7 +239,8 @@ std::vector<uint8_t> Importer::ImporterDumpToFile(uint32_t& rva_of_import_direct
 	size_t size = raw_strings_dlls_and_functions.size() +
 		new_original_first_thunk.size() * sizeof(uintptr_t) +
 		imports_directories.size() * sizeof(import_directory_struct_t);
-	std::vector<uint8_t> buffer(size);
+	
+	buffer.resize(size);
 	uint8_t *p_buffer = buffer.begin();
 
 	// first add the new original first thunk
@@ -265,6 +289,8 @@ uint32_t Importer::get_rva_first_thunk()
 
 void Importer::copy_name_to_buffer(std::vector<uint8_t>& buffer, std::string name)
 {
+	// simple function to extract bytes from string and copy
+	// it to a vector
 	for (size_t i = 0; i < name.size(); i++)
 	{
 		buffer.push_back(name.at(i));

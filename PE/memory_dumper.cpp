@@ -3,7 +3,7 @@
 
 extern FILE* logfile;
 
-memory_dumper_t::memory_dumper_t(ADDRINT indirect_jump_target) : dos_header(nullptr),
+memory_dumper_t::memory_dumper_t(ADDRINT jump_target) : dos_header(nullptr),
 																 nt_coff_header(nullptr),
 																 data_directory_header(nullptr),
 																 section_table_header(nullptr),
@@ -16,15 +16,15 @@ memory_dumper_t::memory_dumper_t(ADDRINT indirect_jump_target) : dos_header(null
 *	jump to the unpacked code.
 */
 {
-	this->address_code_to_dump = indirect_jump_target;
-	img_to_dump = IMG_FindByAddress(indirect_jump_target);
+	this->address_code_to_dump = jump_target;
+	img_to_dump = IMG_FindByAddress(jump_target);
 
 	base_address_to_dump = IMG_StartAddress(img_to_dump);
 
 	this->address_code_to_dump -= base_address_to_dump;
 
-	fprintf(stderr,		"[INFO] Address of code to dump: 0x%x\n", (uintptr_t)indirect_jump_target);
-	fprintf(logfile,	"[INFO] Address of code to dump: 0x%x\n", (uintptr_t)indirect_jump_target);
+	fprintf(stderr,		"[INFO] Address of code to dump: 0x%x\n", (uintptr_t)jump_target);
+	fprintf(logfile,	"[INFO] Address of code to dump: 0x%x\n", (uintptr_t)jump_target);
 	fprintf(stderr,		"[INFO] Base address of that image: 0x%x\n", (uintptr_t)base_address_to_dump);
 	fprintf(logfile,	"[INFO] Base address of that image: 0x%x\n", (uintptr_t)base_address_to_dump);
 }
@@ -207,6 +207,11 @@ bool memory_dumper_t::dump_pe_to_file()
 
 	std::vector<uint8_t> import_section = importer->ImporterDumpToFile(data_directory_header->get_data_directories().at(data_directory_header->import_table_k).virtualAddress);
 
+	// if import section is empty, maybe is not bad
+	// return true
+	if (import_section.empty())
+		return true;
+
 	create_new_section(import_section, section_table_header->IMAGE_SCN_CNT_INITIALIZED_DATA_k |
 		section_table_header->IMAGE_SCN_MEM_READ_k | section_table_header->IMAGE_SCN_MEM_WRITE_k, ".F9");
 
@@ -214,12 +219,9 @@ bool memory_dumper_t::dump_pe_to_file()
 	
 	auto* section = section_table_header->get_section_by_rva(first_thunk);
 
+	// IAT section must be readable and writeable (even if it contains code)
 	section->characteristics |= section_table_header->IMAGE_SCN_MEM_WRITE_k;
 	section->characteristics |= section_table_header->IMAGE_SCN_MEM_READ_k;
-
-	fprintf(stderr, "[INFO] Written new import table into the raw pointer: 0x%x\n",
-		section_table_header->get_sections().at(
-			section_table_header->get_sections().size() - 1).pointerToRawData);
 
 	fseek(dumped_file,
 		section_table_header->get_sections().at(
@@ -229,10 +231,23 @@ bool memory_dumper_t::dump_pe_to_file()
 
 	size_t written_bytes = fwrite(import_section.begin(), import_section.size(), 1, dumped_file);
 
+	fprintf(stderr, "[INFO] Written new import table into the raw pointer: 0x%x; virtual address: 0x%x\n",
+		section_table_header->get_sections().at(
+			section_table_header->get_sections().size() - 1).pointerToRawData,
+		section_table_header->get_sections().at(
+			section_table_header->get_sections().size() - 1).virtualAddress);
+	fprintf(logfile, "[INFO] Written new import table into the raw pointer: 0x%x; virtual address: 0x%x\n",
+		section_table_header->get_sections().at(
+			section_table_header->get_sections().size() - 1).pointerToRawData,
+		section_table_header->get_sections().at(
+			section_table_header->get_sections().size() - 1).virtualAddress);
+
 	if (!written_bytes)
 		return false;
 
 	// write again the headers
+	fprintf(stderr, "[INFO] Writing headers, now with the import section\n");
+	fprintf(logfile, "[INFO] Writing headers, now with the import section\n");
 	if (!write_headers_to_file())
 		return false;
 
@@ -371,7 +386,7 @@ uint64_t memory_dumper_t::offset_to_rva(uint64_t offset)
 
 	return ((offset - section_offset) + section_rva);
 }
-
+/************** GETTERS **********************/
 pe_parser::data_directory_header_t*	memory_dumper_t::get_data_directories()
 {
 	return data_directory_header;
@@ -388,9 +403,6 @@ Importer* memory_dumper_t::get_importer()
 }
 /************** PRIVATE METHODS **********************/
 bool memory_dumper_t::parse_and_check_dos_header(ADDRINT address)
-/***
-*	Use the dos header class to parse the dos header
-*/
 {
 	dos_header = new pe_parser::dos_header_t(address);
 
@@ -400,9 +412,6 @@ bool memory_dumper_t::parse_and_check_dos_header(ADDRINT address)
 }
 
 bool memory_dumper_t::read_dos_stub(ADDRINT address)
-/***
-*	Read the dos stub
-*/
 {
 	size_t copied_size, size_to_copy = (dos_header->get_dos_header().e_lfanew -
 											sizeof(pe_parser::dos_header_t::dos_header_struct_t));
@@ -414,9 +423,6 @@ bool memory_dumper_t::read_dos_stub(ADDRINT address)
 }
 
 bool memory_dumper_t::parse_and_check_nt_header(ADDRINT address)
-/***
-*	Use nt class to parse nt header
-*/
 {
 	nt_coff_header = new pe_parser::nt_header_t(address);
 
@@ -426,9 +432,6 @@ bool memory_dumper_t::parse_and_check_nt_header(ADDRINT address)
 }
 
 bool memory_dumper_t::parse_and_check_optional_header(ADDRINT address)
-/***
-*	Use optional header class to parse the optional header
-*/
 {
 	optional_header = new pe_parser::optional_header_t(address);
 
@@ -438,11 +441,7 @@ bool memory_dumper_t::parse_and_check_optional_header(ADDRINT address)
 }
 
 bool memory_dumper_t::parse_and_check_data_directories(ADDRINT address)
-/***
-*	Read data directories
-*/
 {
-	
 	if (optional_header->is_64_bit_binary())
 		data_directory_header = new pe_parser::data_directory_header_t(address,
 			optional_header->get_optional_image().optional_64.numberOfRvaAndSizes,
@@ -458,9 +457,6 @@ bool memory_dumper_t::parse_and_check_data_directories(ADDRINT address)
 }
 
 bool memory_dumper_t::parse_and_check_section_headers(ADDRINT address)
-/***
-*	Read the section headers
-*/
 {
 	if (optional_header->is_64_bit_binary())
 		section_table_header = new pe_parser::section_header_t(address,
@@ -517,13 +513,13 @@ uint32_t memory_dumper_t::calc_correct_size_of_headers()
 bool memory_dumper_t::create_new_section(std::vector<uint8_t> buffer, uint32_t characteristics, const char *name)
 {
 	pe_parser::section_header_t::section_struct_t	new_section = { 0 };
-	uint32_t NewVirtualSection = 0;
-	uint32_t NewSectionRawPointer = 0;
-	uint32_t SectionDataPtr = 0;
-	uint32_t SectionVirtualSize = 0;
-	uint32_t new_size_of_image;
-	uint32_t section_alignment;
-	uint32_t file_alignment;
+	uint32_t NewVirtualSection									= 0;
+	uint32_t NewSectionRawPointer								= 0;
+	uint32_t SectionDataPtr										= 0;
+	uint32_t SectionVirtualSize									= 0;
+	uint32_t new_size_of_image									= 0;
+	uint32_t section_alignment									= 0;
+	uint32_t file_alignment										= 0;
 
 	if (optional_header->is_64_bit_binary())
 	{
@@ -586,7 +582,7 @@ uint64_t memory_dumper_t::realign_pe()
 	uint32_t section_data_ptr			= 0;
 	uint32_t current_section			= 0;
 	uint32_t file_alignment				= 0;
-	uint8_t  aux;
+	uint8_t  aux						= 0;
 
 	auto& section_vector = section_table_header->get_sections();
 
@@ -596,7 +592,7 @@ uint64_t memory_dumper_t::realign_pe()
 		file_alignment = optional_header->get_optional_image().optional_32.fileAlignment;
 
 	if (file_alignment == 0x1000)
-		file_alignment = 0x200;
+		file_alignment = 0x200;		// set the minimum file alignment
 
 	if (optional_header->is_64_bit_binary())
 		optional_header->get_optional_image().optional_64.fileAlignment = file_alignment;
@@ -608,7 +604,7 @@ uint64_t memory_dumper_t::realign_pe()
 		auto &sec = section_vector[i];
 		section_data_ptr =  sec.virtualAddress + sec.sizeOfRawData;
 
-		if (sec.sizeOfRawData > 0)
+		if (sec.sizeOfRawData > 0)	// try to reduce the number of 0s at the end of a section to the minimum
 		{
 			section_data_ptr--;
 			PIN_SafeCopy((VOID*)&aux, (const VOID*)section_data_ptr, 1);
@@ -659,7 +655,7 @@ uint64_t memory_dumper_t::realign_pe()
 
 		sec.virtualSize = new_virtual_section_size;
 
-		if (i != (section_vector.size() - 1))
+		if (i != (section_vector.size() - 1)) // if section is not the last one
 		{
 			if ((sec.virtualSize + sec.virtualAddress) < section_vector[i + 1].virtualAddress)
 			{
@@ -671,7 +667,7 @@ uint64_t memory_dumper_t::realign_pe()
 	}
 
 	return section_vector[section_vector.size() - 1].pointerToRawData +
-		section_vector[section_vector.size() - 1].sizeOfRawData;
+		section_vector[section_vector.size() - 1].sizeOfRawData; // return the total size of the file in raw
 }
 
 bool memory_dumper_t::write_headers_to_file()

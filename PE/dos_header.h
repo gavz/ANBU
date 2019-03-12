@@ -39,7 +39,7 @@ namespace pe_parser
 		dos_header_t(ADDRINT dos_header_address);
 		~dos_header_t() = default;
 
-		const uint16_t mz_signature = 0x5a4d;
+		const uint16_t mz_signature = 0x5a4d; // MZ in little-endian
 
 		bool check_dos_header();
 		dos_header_struct_t& get_dos_header();

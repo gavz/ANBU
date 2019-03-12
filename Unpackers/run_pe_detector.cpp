@@ -132,14 +132,19 @@ void syscall_get_arguments(CONTEXT *ctx, SYSCALL_STANDARD std, int count, ...)
 
 void syscall_entry(THREADID thread_id, CONTEXT *ctx, SYSCALL_STANDARD std, void *v)
 {
-	OBJECT_ATTRIBUTES *object_attributes;
-	RTL_USER_PROCESS_PARAMETERS *process_parameters;
-	unsigned long syscall_number = PIN_GetSyscallNumber(ctx, std);
-	map<HANDLE, std::vector<write_memory_t>>::iterator it;
-	memory_dumper_t* mem_dumper;
-	size_t index_base_address = -1;
+	OBJECT_ATTRIBUTES*									object_attributes;
+	RTL_USER_PROCESS_PARAMETERS*						process_parameters;
+	unsigned long										syscall_number;
+	map<HANDLE, std::vector<write_memory_t>>::iterator	it;
+	memory_dumper_t*									mem_dumper;
+	size_t												index_base_address;
 
-	if (g_syscall_names.find(syscall_number) != g_syscall_names.end())
+	// get the syscall number
+	syscall_number = PIN_GetSyscallNumber(ctx, std);
+	index_base_address = -1;
+
+	// if the syscall is not in our list, you can leave
+	if (g_syscall_names.find(syscall_number) != g_syscall_names.end())	
 	{
 		const char *name = g_syscall_names[syscall_number];
 
@@ -196,8 +201,8 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx, SYSCALL_STANDARD std, void 
 
 			syscall_get_arguments(ctx, std, 5, 0, &process_handle, 1, &base_address, 2, &buffer, 3, &sc->arg3, 4, &sc->arg4);
 
-			fprintf(stderr, "[INFO] Process Handle: 0x%x\nBase Address to write: 0x%x\nBuffer with data to write: 0x%x\nSize: 0x%x\n", process_handle, (unsigned int)base_address, (unsigned int)buffer, sc->arg3);
-			fprintf(logfile, "[INFO] Process Handle: 0x%x\nBase Address to write: 0x%x\nBuffer with data to write: 0x%x\nSize: 0x%x\n", process_handle, (unsigned int)base_address, (unsigned int)buffer, sc->arg3);
+			fprintf(stderr, "[INFO] Process Handle: 0x%x\nBase Address to write: 0x%x\nBuffer with data to write: 0x%x\nSize: 0x%x\n", (unsigned int)process_handle, (unsigned int)base_address, (unsigned int)buffer, (unsigned int)sc->arg3);
+			fprintf(logfile, "[INFO] Process Handle: 0x%x\nBase Address to write: 0x%x\nBuffer with data to write: 0x%x\nSize: 0x%x\n", (unsigned int)process_handle, (unsigned int)base_address, (unsigned int)buffer, (unsigned int)sc->arg3);
 			
 			write_mem = new write_memory_t();
 
@@ -223,12 +228,14 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx, SYSCALL_STANDARD std, void 
 
 			WINDOWS::TerminateThread(g_thread_handle[0], 0);
 			WINDOWS::TerminateProcess(g_process_handle[0], 0);
-			fprintf(stderr, "[INFO] Finished runPE process dumping\n");
-			fprintf(logfile, "[INFO] Finished runPE process dumping\n");
+
+			fprintf(stderr, "[INFO] Finished runPE process... Dumping\n");
+			fprintf(logfile, "[INFO] Finished runPE process... Dumping\n");
 
 			for (it = process_data.begin(); it != process_data.end(); it++)
 			{
-				fprintf(stderr, "[INFO] Dumping file for process handle: 0x%x\n", it->first);
+				fprintf(stderr, "[INFO] Dumping file for process handle: 0x%x\n", (unsigned int)it->first);
+				fprintf(logfile, "[INFO] Dumping file for process handle: 0x%x\n", (unsigned int)it->first);
 				
 				for (size_t index_vector = 0; index_vector < it->second.size(); index_vector++)
 				{
@@ -260,8 +267,8 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx, SYSCALL_STANDARD std, void 
 				}
 				else
 				{
-					fprintf(stderr, "[INFO] Success dumping process with handle %x and base 0x%x", it->first, it->second.at(index_base_address).address);
-					fprintf(logfile, "[INFO] Success dumping process with handle %x and base 0x%x", it->first, it->second.at(index_base_address).address);
+					fprintf(stderr, "[INFO] Success dumping process with handle %x and base 0x%x", (unsigned int)it->first, (unsigned int)it->second.at(index_base_address).address);
+					fprintf(logfile, "[INFO] Success dumping process with handle %x and base 0x%x", (unsigned int)it->first, (unsigned int)it->second.at(index_base_address).address);
 				}
 
 				delete mem_dumper;

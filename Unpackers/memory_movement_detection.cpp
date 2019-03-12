@@ -89,6 +89,7 @@ void instrument_mem_cflow(INS ins, void *v)
 		}
 	}
 
+	// check if jumped to unpacked code
 	if ((INS_IsDirectBranch(ins) || INS_IsIndirectBranchOrCall(ins))
 		&& INS_OperandCount(ins) > 0)
 	{
@@ -129,9 +130,10 @@ void log_memwrite(UINT32 size)
 	}
 
 
+	// check if is writing an API to memory
+	// only will be executed after a GetProcAddress
 	if (check_first_thunk && size == sizeof(ADDRINT))
 	{
-		// check is writing an API to memory
 		ADDRINT api_write;
 		PIN_SafeCopy((VOID*)&api_write, (const VOID*)addr, sizeof(ADDRINT));
 
@@ -192,7 +194,7 @@ void check_indirect_ctransfer(ADDRINT ip, ADDRINT target)
 
 			PIN_ExitProcess(0);
 		}
-		
+		PIN_UnlockClient();
 	}
 }
 
@@ -349,15 +351,15 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 	 {
 		 if (dll_imports.at(i)->dll_nameA.size() != 0)
 		 {
-			 fprintf(stderr, "[INFO] Adding to the import DLLs: %s\n", dll_imports.at(i)->dll_nameA.c_str());
-			 fprintf(logfile, "[INFO] Adding to the import DLLs: %s\n", dll_imports.at(i)->dll_nameA.c_str());
+			 fprintf(stderr, "[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameA.c_str());
+			 fprintf(logfile, "[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameA.c_str());
 
 			 importer->ImporterAddNewDll(dll_imports.at(i)->dll_nameA.c_str());
 		 }
 		 else
 		 {
-			 fwprintf(stderr, L"[INFO] Adding to the import DLLs: %S\n", dll_imports.at(i)->dll_nameW.c_str());
-			 fwprintf(logfile, L"[INFO] Adding to the import DLLs: %s\n", dll_imports.at(i)->dll_nameW.c_str());
+			 fwprintf(stderr, L"[INFO] Adding to the import DLL: %S\n", dll_imports.at(i)->dll_nameW.c_str());
+			 fwprintf(logfile, L"[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameW.c_str());
 			 importer->ImporterAddNewDll(dll_imports.at(i)->dll_nameW.c_str());
 		 }
 		 ADDRINT first_thunk = 0;

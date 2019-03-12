@@ -5,6 +5,7 @@
 
 #include "common.h"
 
+/****** Structures used for monitoring functions ******/
 typedef struct function_struct_t_
 {
 	std::string function_name;
@@ -20,6 +21,8 @@ typedef struct dll_import_struct_t_
 	std::vector<function_struct_t> functions;
 }  dll_import_struct_t;
 
+
+/***** INSTRUMENTATION FUNCTIONS *****/
 void get_addresses_from_images(IMG img, VOID *v);
 
 void hook_loadlibrarya_before(const char* dll_name);

@@ -11,10 +11,6 @@ bool check_first_thunk = false;
 
 void get_addresses_from_images(IMG img, VOID *v)
 {
-	/*
-	*	Check if the loaded executable is the main one
-	*	in that case record the base address.
-	*/
 	RTN loadlibraryA;
 	RTN loadlibraryW;
 	RTN getprocaddress;
@@ -23,6 +19,10 @@ void get_addresses_from_images(IMG img, VOID *v)
 	fprintf(logfile, "[INFO] IMG Loaded: %s\n", IMG_Name(img).c_str());
 
 	if (IMG_IsMainExecutable(img)) 
+	/*
+	*	Check if the loaded executable is the main one
+	*	in that case record the base address.
+	*/
 	{
 		main_base_address = IMG_StartAddress(img);
 		fprintf(stderr, "[INFO] Binary Base Address: 0x%x\n", main_base_address);
@@ -108,7 +108,7 @@ void get_addresses_from_images(IMG img, VOID *v)
 
 void hook_loadlibrarya_before(const char* dll_name)
 {
-	check_first_thunk = false;
+	check_first_thunk = false;			// close the check of the first thunk copy
 
 	if (aux == nullptr					// if aux is equals to nullptr
 		|| strcmp(aux->dll_nameA.c_str(), dll_name) != 0)
@@ -124,9 +124,9 @@ void hook_loadlibrarya_before(const char* dll_name)
 
 void hook_loadlibraryw_before(const wchar_t* dll_name)
 {
-	check_first_thunk = false;
+	check_first_thunk = false; // close the check of the first thunk copy
 
-	if (aux == nullptr
+	if (aux == nullptr // if aux is equals to nullptr
 		|| wcscmp(aux->dll_nameW.c_str(), dll_name) != 0)
 	{
 		aux = new dll_import_struct_t();

@@ -73,7 +73,7 @@ namespace pe_parser
 			IMAGE_FILE_BYTES_REVERSED_HI_k = 0x8000
 		};
 
-		const uint32_t correct_pe_signature_k = 0x4550;
+		const uint32_t correct_pe_signature_k = 0x4550;	// PE in little-endian
 
 		nt_header_t(ADDRINT address);
 		~nt_header_t() = default;

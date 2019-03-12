@@ -32,7 +32,7 @@ namespace pe_parser
 		
 			data_directories.push_back(data_directory_aux);
 		}
-
+		/* I couldn't initialize the map with as many values, so I do it in the constructor */
 		directory_names[export_table_k]				= "Export Table";
 		directory_names[import_table_k]				= "Import Table";
 		directory_names[resource_table_k]			= "Resource Table";

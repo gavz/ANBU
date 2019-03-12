@@ -11,6 +11,11 @@
 #include "section_header.h"
 
 class Importer
+/***
+*	Class used to fix the import address table of an
+*	unpacked file, with this class will be easier to
+*	create the necessary structures for the new IAT.
+*/
 {
 public:
 

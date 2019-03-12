@@ -3,13 +3,6 @@
 #ifndef MEMORY_DUMPER_H
 #define MEMORY_DUMPER_H
 
-/*
-*	Class to parse and dump a PE file from memory to
-*	disk. Some of things I had to include comparing 
-*	with other dumpers is the use of the function
-*	PE_SafeCopy to get the data.
-*/
-
 #include "common.h"
 #include "dos_header.h"
 #include "nt_header.h"
@@ -20,9 +13,15 @@
 #include "generic_instrumentation.h"
 
 class memory_dumper_t
+/***
+*	Class to parse and dump a PE file from memory to
+*	disk. Some of things I had to include comparing
+*	with other dumpers is the use of the function
+*	PE_SafeCopy to get the data.
+*/
 {
 public:
-	memory_dumper_t(ADDRINT indirect_jump_target);
+	memory_dumper_t(ADDRINT jump_target);
 	memory_dumper_t(std::vector<uint8_t> file_base_in_vector);
 	~memory_dumper_t();
 	
