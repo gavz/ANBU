@@ -4,8 +4,7 @@
 /************* EXTERN VARIABLES *************/
 extern FILE*								logfile;			// log file handler
 extern ADDRINT								main_base_address;	// main base address of binary, to start
-																// reading PE file
-extern KNOB<string>							KnobLogFile;		
+																// reading PE file	
 extern std::vector<dll_import_struct_t*>	dll_imports;
 extern bool									check_first_thunk;
 
@@ -354,7 +353,6 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 		 {
 			 fprintf(stderr, "[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameA.c_str());
 			 fprintf(logfile, "[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameA.c_str());
-
 			 importer->ImporterAddNewDll(dll_imports.at(i)->dll_nameA.c_str());
 		 }
 		 else
@@ -367,11 +365,21 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 
 		 for (size_t j = 0; j < dll_imports.at(i)->functions.size(); j++)
 		 {
-			 fprintf(stderr, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
-			 fprintf(logfile, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
+			 if (dll_imports.at(i)->functions.at(j).is_ordinal)
+			 {
+				 fprintf(stderr, "[INFO] Adding to the import Function: 0%x\n", dll_imports.at(i)->functions.at(j).function_ordinal);
+				 fprintf(logfile, "[INFO] Adding to the import Function: 0%x\n", dll_imports.at(i)->functions.at(j).function_ordinal);
 
-			 importer->ImporterAddNewAPI(dll_imports.at(i)->functions.at(j).function_name.c_str());
+				 importer->ImporterAddNewAPIOrdinal(dll_imports.at(i)->functions.at(j).function_ordinal);
+			 }
+			 else
+			 {
+				 fprintf(stderr, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
+				 fprintf(logfile, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
 
+				 importer->ImporterAddNewAPI(dll_imports.at(i)->functions.at(j).function_name.c_str());
+			 }
+			 
 			 if (first_thunk == 0)
 				 first_thunk = dll_imports.at(i)->functions.at(j).function_destination;
 			 else if (dll_imports.at(i)->functions.at(j).function_destination < first_thunk)

@@ -155,17 +155,36 @@ void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name)
 {
 	check_first_thunk = false;
 
-	PIN_LockClient();
-	fprintf(stderr, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);
-	fprintf(logfile, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);
-	PIN_UnlockClient();
-
 	// Create a new function
 	if (aux)
 	{
 		function_struct_t func;
-		func.function_name = dll_name;
+
+		if ((uintptr_t)dll_name <= 0xFFFF) // it is ordinal
+		{
+			func.function_ordinal = (uint16_t)((uintptr_t)dll_name & 0xFFFF);
+			func.is_ordinal = true;
+		}
+		else
+		{
+			func.function_name = dll_name;
+			func.is_ordinal = false;
+		}
+
 		aux->functions.push_back(func);
+		PIN_LockClient();
+		if (func.is_ordinal)
+		{
+			fprintf(stderr, "[INFO] dll 0x%x(%s), function 0x%x\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), func.function_ordinal);
+			fprintf(logfile, "[INFO] dll 0x%x(%s), function 0x%x\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), func.function_ordinal);
+		}
+		else
+		{
+			fprintf(stderr, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);
+			fprintf(logfile, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);	
+		}
+		PIN_UnlockClient();
+
 	}
 }
 

@@ -4,21 +4,24 @@
 #define GENERIC_INSTRUMENTATION_H
 
 #include "common.h"
+#include "importer.h"
 
 /****** Structures used for monitoring functions ******/
 typedef struct function_struct_t_
 {
+	bool		is_ordinal;
+	uint16_t	function_ordinal;
 	std::string function_name;
-	ADDRINT	function_address;
-	ADDRINT	function_destination;
+	ADDRINT		function_address;
+	ADDRINT		function_destination;
 } function_struct_t;
 
 typedef struct dll_import_struct_t_
 {
-	std::string	dll_nameA;
-	std::wstring dll_nameW;
-	ADDRINT	dll_address;
-	std::vector<function_struct_t> functions;
+	std::string						dll_nameA;
+	std::wstring					dll_nameW;
+	ADDRINT							dll_address;
+	std::vector<function_struct_t>	functions;
 }  dll_import_struct_t;
 
 
