@@ -71,6 +71,7 @@ private:
 	uint8_t*	dos_stub;
 	bool		dump_correct;
 	char		file_name[200];
+	bool		mem_dumper_correct;
 	std::vector<uint8_t> data_from_vector;
 };
 

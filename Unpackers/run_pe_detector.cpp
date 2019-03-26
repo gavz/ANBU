@@ -18,7 +18,8 @@ ADDRINT										SYS_NtDuplicateObject,
 ADDRINT										SYS_NtOpenProcess, 
 											SYS_NtCreateProcess, 
 											SYS_NtCreateProcessEx;
-ADDRINT										SYS_NtAllocateVirtualMemory;
+ADDRINT										SYS_NtAllocateVirtualMemory,
+											SYS_NtUnmapViewOfSection;
 
 ADDRINT										entry_point;
 
@@ -109,6 +110,7 @@ void init_common_syscalls()
 	/****** Function to allocate memory in remote or local process ******/
 	SYS_NtAllocateVirtualMemory = syscall_name_to_number("NtAllocateVirtualMemory");
 	/****** Other functions *******/
+	SYS_NtUnmapViewOfSection	= syscall_name_to_number("NtUnmapViewOfSection");
 	SYS_NtDuplicateObject		= syscall_name_to_number("NtDuplicateObject");
 	SYS_NtDelayExecution		= syscall_name_to_number("NtDelayExecution");
 }
@@ -299,6 +301,35 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx, SYSCALL_STANDARD std, void 
 				fprintf(logfile, "[INFO] Skipped Sleep(%d)\n", (int)-delay_interval->QuadPart / 10000);
 			}
 			delay_interval->QuadPart = 0; // modify!!!
+		}
+		else if (syscall_number == SYS_NtUnmapViewOfSection)
+		{
+			fprintf(stderr, "[INFO] Syscall called 0x%x(%s) thread 0x%x \n", syscall_number, name, thread_id);
+			fprintf(logfile, "[INFO] Syscall called 0x%x(%s) thread 0x%x \n", syscall_number, name, thread_id);
+
+			syscall_get_arguments(ctx, std, 2, 0, &sc->arg0, 1, &sc->arg1);
+
+			fprintf(stderr, "[INFO] Unmaped section 0x%x in process handle %x\n", (unsigned int)sc->arg0, (unsigned int)sc->arg1);
+			fprintf(logfile, "[INFO] Unmaped section 0x%x in process handle %x\n", (unsigned int)sc->arg0, (unsigned int)sc->arg1);
+		}
+		else if (syscall_number == SYS_NtAllocateVirtualMemory)
+		{
+			fprintf(stderr, "[INFO] Syscall called 0x%x(%s) thread 0x%x \n", syscall_number, name, thread_id);
+			fprintf(logfile, "[INFO] Syscall called 0x%x(%s) thread 0x%x \n", syscall_number, name, thread_id);
+
+			ADDRINT address_to_allocate;
+			WINDOWS::SIZE_T  size_to_allocate;
+			syscall_get_arguments(ctx, std, 3, 0, &sc->arg0, 1, &sc->arg1, 3, &sc->arg2);
+
+			PIN_SafeCopy((VOID*)&address_to_allocate, (const VOID*)sc->arg1, sizeof(ADDRINT));
+			PIN_SafeCopy((VOID*)&size_to_allocate, (const VOID*)sc->arg2, sizeof(WINDOWS::SIZE_T));
+
+			fprintf(stderr, "[INFO] Allocated memory address 0x%x, with size 0x%x, in process handle %x\n", (unsigned int)address_to_allocate, 
+																											(unsigned int)size_to_allocate, 
+																											(unsigned int)sc->arg0);
+			fprintf(logfile, "[INFO] Allocated memory address 0x%x, with size 0x%x, in process handle %x\n", (unsigned int)address_to_allocate,
+				(unsigned int)size_to_allocate,
+				(unsigned int)sc->arg0);
 		}
 	}
 }

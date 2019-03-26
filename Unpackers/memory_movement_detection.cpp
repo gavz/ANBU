@@ -144,7 +144,7 @@ void log_memwrite(UINT32 size)
 				if (dll_imports.at(i)->functions.at(j).function_address == api_write) // check which API is writing
 				{
 					PIN_LockClient();
-					dll_imports.at(i)->functions.at(j).function_destination = addr - IMG_StartAddress(IMG_FindByAddress(addr));
+					dll_imports.at(i)->functions.at(j).function_destination = addr;
 					PIN_UnlockClient();
 
 					fprintf(stderr, "[INFO] API %s (0x%x) written to: 0x%x\n",
@@ -386,6 +386,7 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 				 first_thunk = dll_imports.at(i)->functions.at(j).function_destination;
 		 }
 
+		 first_thunk -= IMG_StartAddress(IMG_FindByAddress(first_thunk));
 		 importer->ImporterSetNewFirstThunk((uint32_t)first_thunk);
 	 }
 

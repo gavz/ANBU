@@ -18,10 +18,23 @@ memory_dumper_t::memory_dumper_t(ADDRINT jump_target) : dos_header(nullptr),
 *	jump to the unpacked code.
 */
 {
+	mem_dumper_correct = true;
 	this->address_code_to_dump = jump_target;
 	img_to_dump = IMG_FindByAddress(jump_target);
 
+	if (img_to_dump == IMG_Invalid())
+	{
+		mem_dumper_correct = false;
+		return;
+	}
+
 	base_address_to_dump = IMG_StartAddress(img_to_dump);
+
+	if (base_address_to_dump == NULL)
+	{
+		mem_dumper_correct = false;
+		return;
+	}
 
 	this->address_code_to_dump -= base_address_to_dump;
 
@@ -37,7 +50,8 @@ memory_dumper_t::memory_dumper_t(std::vector<uint8_t> file_base_in_vector) : dos
 																					section_table_header(nullptr),
 																					dos_stub(nullptr),
 																					dump_correct(false),
-																					headers_correct(false)
+																					headers_correct(false),
+																					mem_dumper_correct(true)
 /***
 *	Constructor for the unpacker when unpacks a RunPE
 *	we have the file in vectors of bytes, as it will 
@@ -83,6 +97,9 @@ bool memory_dumper_t::parse_memory()
 *	if everything is correct.
 */
 {
+	if (!mem_dumper_correct)
+		return false;
+
 	ADDRINT address = base_address_to_dump;
 	headers_correct = false;
 
@@ -177,7 +194,7 @@ bool memory_dumper_t::dump_pe_to_file()
 *	unpacked in the same memory. 
 */
 {
-	if (!headers_correct)
+	if (!mem_dumper_correct || !headers_correct)
 		return false;
 
 	snprintf(file_name, sizeof(file_name) - 1, "file.base-0x%x.entry-0x%x.bin", (uintptr_t)base_address_to_dump
@@ -269,7 +286,7 @@ bool memory_dumper_t::dump_runpe_to_file(std::vector<write_memory_t> file_data, 
 	size_t index_section = -1;
 	size_t size_to_copy;
 
-	if (!headers_correct)
+	if (!mem_dumper_correct || !headers_correct)
 		return false;
 
 	snprintf(file_name, sizeof(file_name) - 1, "file_run_pe.base-0x%x.bin", (uintptr_t)base_address);
