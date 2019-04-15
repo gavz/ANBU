@@ -7,6 +7,7 @@ extern ADDRINT								main_base_address;	// main base address of binary, to star
 																// reading PE file	
 extern std::vector<dll_import_struct_t*>	dll_imports;
 extern bool									check_first_thunk;
+extern pe_file*								pe_file_entropy;
 
 /******************* Data for the unpacker *******************/
 std::map<ADDRINT, mem_access_t>				shadow_mem;			// map memory addresses with memory
@@ -15,6 +16,7 @@ std::vector<mem_cluster_t>					clusters;			// vector to store all the unpacked m
 																// clusters found
 ADDRINT										saved_addr;			// temporary variable needed for storing state between
 																// two analysis routines
+bool										any_import_resolved = false;
 
 /******************* Variables for dump *******************/
 memory_dumper_t*							memory_dumper;		// dumper for the PE file
@@ -24,7 +26,7 @@ memory_dumper_t*							memory_dumper;		// dumper for the PE file
 
 /******************* Functions for the unpacker *******************/
 
-void fini(INT32 code, void *v)
+void fini()
 /*
 *   Function that will be executed at the end
 *   of the execution or when PIN detachs from
@@ -132,7 +134,7 @@ void log_memwrite(UINT32 size)
 
 	// check if is writing an API to memory
 	// only will be executed after a GetProcAddress
-	if (check_first_thunk && size == sizeof(ADDRINT))
+	if (check_first_thunk && size == sizeof(ADDRINT) && pe_file_entropy->on_pe_file(addr))
 	{
 		ADDRINT api_write;
 		PIN_SafeCopy((VOID*)&api_write, (const VOID*)addr, sizeof(ADDRINT));
@@ -143,6 +145,8 @@ void log_memwrite(UINT32 size)
 			{
 				if (dll_imports.at(i)->functions.at(j).function_address == api_write) // check which API is writing
 				{
+					any_import_resolved = true;
+
 					PIN_LockClient();
 					dll_imports.at(i)->functions.at(j).function_destination = addr;
 					PIN_UnlockClient();
@@ -156,13 +160,13 @@ void log_memwrite(UINT32 size)
 						dll_imports.at(i)->functions.at(j).function_name.c_str(),
 						dll_imports.at(i)->functions.at(j).function_address,
 						dll_imports.at(i)->functions.at(j).function_destination);
-
 					check_first_thunk = false;
-
 					return;
 				}
 			}
 		}
+		
+		check_first_thunk = false;
 	}
 }
 
@@ -187,14 +191,19 @@ void check_indirect_ctransfer(ADDRINT ip, ADDRINT target)
 
  		mem_to_file(&c, target);
 
-		PIN_LockClient();
-		if (dump_to_file(&c, target))
+		if (pe_file_entropy->has_section_changed_entropy(target) && any_import_resolved)
 		{
-			PIN_UnlockClient();
+			PIN_LockClient();
+			if (dump_to_file(&c, target))
+			{
+				PIN_UnlockClient();
 
-			PIN_ExitProcess(0);
+				fini();
+
+				PIN_ExitProcess(0);
+			}
+			PIN_UnlockClient();
 		}
-		PIN_UnlockClient();
 	}
 }
 
@@ -349,6 +358,8 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 
 	 for (size_t i = 0; i < dll_imports.size(); i++)
 	 {
+		 // check if the dll to insert is inside of the unpacked zone
+		 // if not, go fuck off
 		 if (dll_imports.at(i)->dll_nameA.size() != 0)
 		 {
 			 fprintf(stderr, "[INFO] Adding to the import DLL: %s\n", dll_imports.at(i)->dll_nameA.c_str());
@@ -365,6 +376,9 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 
 		 for (size_t j = 0; j < dll_imports.at(i)->functions.size(); j++)
 		 {
+			 if (!pe_file_entropy->on_pe_file(dll_imports.at(i)->functions.at(j).function_destination))
+				 continue;
+
 			 if (dll_imports.at(i)->functions.at(j).is_ordinal)
 			 {
 				 fprintf(stderr, "[INFO] Adding to the import Function: 0%x\n", dll_imports.at(i)->functions.at(j).function_ordinal);
@@ -385,6 +399,8 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 			 else if (dll_imports.at(i)->functions.at(j).function_destination < first_thunk)
 				 first_thunk = dll_imports.at(i)->functions.at(j).function_destination;
 		 }
+		 if (first_thunk == 0x0)
+			 continue;
 
 		 first_thunk -= IMG_StartAddress(IMG_FindByAddress(first_thunk));
 		 importer->ImporterSetNewFirstThunk((uint32_t)first_thunk);

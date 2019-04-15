@@ -4,7 +4,7 @@
 
 /************* EXTERN VARIABLES *************/
 extern FILE*						logfile; // log file handler
-
+extern pe_file*						pe_file_entropy;
 
 /************* VARIABLES USED FOR MONITORING BINARY *************/
 ADDRINT								main_base_address;
@@ -12,11 +12,16 @@ dll_import_struct_t*				aux = nullptr;
 std::vector<dll_import_struct_t*>	dll_imports;
 bool								check_first_thunk = false;
 
+const char*							saved_dll_nameA = nullptr;
+const wchar_t*						saved_dll_nameW = nullptr;
+
 
 void get_addresses_from_images(IMG img, VOID *v)
 {
 	RTN loadlibraryA;
 	RTN loadlibraryW;
+	RTN getmodulehandleA;
+	RTN getmodulehandleW;
 	RTN getprocaddress;
 
 	fprintf(stderr, "[INFO] IMG Loaded: %s\n", IMG_Name(img).c_str());
@@ -29,6 +34,8 @@ void get_addresses_from_images(IMG img, VOID *v)
 	*/
 	{
 		main_base_address = IMG_StartAddress(img);
+		pe_file_entropy = new pe_file(main_base_address);
+		pe_file_entropy->analyze_binary();
 		fprintf(stderr, "[INFO] Binary Base Address: 0x%x\n", main_base_address);
 		fprintf(logfile, "[INFO] Binary Base Address: 0x%x\n", main_base_address);
 		return;
@@ -82,6 +89,54 @@ void get_addresses_from_images(IMG img, VOID *v)
 		RTN_Close(loadlibraryW);
 	}
 
+	getmodulehandleA = RTN_FindByName(img, "GetModuleHandleA");
+
+	if (RTN_Valid(getmodulehandleA))
+	{
+		RTN_Open(getmodulehandleA);
+
+		fprintf(stderr, "[INFO] Inserting callbacks for: %s\n", RTN_Name(getmodulehandleA).c_str());
+
+		RTN_InsertCall(getmodulehandleA,
+			IPOINT_BEFORE,
+			(AFUNPTR)hook_getmodulehandlea_before,
+			IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+			IARG_END
+		);
+
+		RTN_InsertCall(getmodulehandleA,
+			IPOINT_AFTER,
+			(AFUNPTR)hook_loadlibrary_after,
+			IARG_FUNCRET_EXITPOINT_VALUE,
+			IARG_END);
+
+		RTN_Close(getmodulehandleA);
+	}
+
+	getmodulehandleW = RTN_FindByName(img, "GetModuleHandleW");
+
+	if (RTN_Valid(getmodulehandleW))
+	{
+		RTN_Open(getmodulehandleW);
+
+		fprintf(stderr, "[INFO] Inserting callbacks for: %s\n", RTN_Name(getmodulehandleW).c_str());
+
+		RTN_InsertCall(getmodulehandleW,
+			IPOINT_BEFORE,
+			(AFUNPTR)hook_getmodulehandlew_before,
+			IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+			IARG_END
+		);
+
+		RTN_InsertCall(getmodulehandleW,
+			IPOINT_AFTER,
+			(AFUNPTR)hook_loadlibrary_after,
+			IARG_FUNCRET_EXITPOINT_VALUE,
+			IARG_END);
+
+		RTN_Close(getmodulehandleW);
+	}
+
 	getprocaddress = RTN_FindByName(img, "GetProcAddress");
 
 	if (RTN_Valid(getprocaddress))
@@ -107,6 +162,8 @@ void get_addresses_from_images(IMG img, VOID *v)
 		RTN_Close(getprocaddress);
 	}
 
+	
+
 	return;
 }
 
@@ -114,41 +171,68 @@ void hook_loadlibrarya_before(const char* dll_name)
 {
 	check_first_thunk = false;			// close the check of the first thunk copy
 
-	if (aux == nullptr					// if aux is equals to nullptr
-		|| strcmp(aux->dll_nameA.c_str(), dll_name) != 0)
-	{
-		aux = new dll_import_struct_t();
-		aux->dll_nameA = dll_name;
-		dll_imports.push_back(aux);
+	saved_dll_nameA = dll_name;
+}
 
-		fprintf(stderr, "[INFO] LoadLibraryA dll name: %s\n", dll_name);
-		fprintf(logfile, "[INFO] LoadLibraryA dll name: %s\n", dll_name);
-	}
+void hook_getmodulehandlea_before(const char* dll_name)
+{
+	check_first_thunk = false;			// close the check of the first thunk copy
+
+	saved_dll_nameA = dll_name;
 }
 
 void hook_loadlibraryw_before(const wchar_t* dll_name)
 {
 	check_first_thunk = false; // close the check of the first thunk copy
 
-	if (aux == nullptr // if aux is equals to nullptr
-		|| wcscmp(aux->dll_nameW.c_str(), dll_name) != 0)
-	{
-		aux = new dll_import_struct_t();
-		aux->dll_nameW = dll_name;
+	saved_dll_nameW = dll_name;
+}
 
-		dll_imports.push_back(aux);
+void hook_getmodulehandlew_before(const wchar_t* dll_name)
+{
+	check_first_thunk = false; // close the check of the first thunk copy
 
-		fwprintf(stderr, L"[INFO] LoadLibraryW dll name: %S\n", dll_name);
-		fwprintf(logfile, L"[INFO] LoadLibraryW dll name: %S\n", dll_name);
-	}
+	saved_dll_nameW = dll_name;
 }
 
 void hook_loadlibrary_after(ADDRINT dll_address)
 {
-	aux->dll_address = dll_address;
+	if (dll_address != NULL)
+	{
+		if (saved_dll_nameA != nullptr)
+		{
+			if (aux == nullptr					// if aux is equals to nullptr
+				|| strcmp(aux->dll_nameA.c_str(), saved_dll_nameA) != 0)
+			{
+				aux = new dll_import_struct_t();
+				aux->dll_nameA = saved_dll_nameA;
+				dll_imports.push_back(aux);
 
-	fprintf(stderr, "[INFO] LoadLibrary returned: 0x%x\n", dll_address);
-	fprintf(logfile, "[INFO] LoadLibrary returned: 0x%x\n", dll_address);
+				fprintf(stderr, "[INFO] LoadLibraryA dll name: %s\n", saved_dll_nameA);
+				fprintf(logfile, "[INFO] LoadLibraryA dll name: %s\n", saved_dll_nameA);
+			}
+		}
+		else if (saved_dll_nameW != nullptr)
+		{
+			if (aux == nullptr
+				|| wcscmp(aux->dll_nameW.c_str(), saved_dll_nameW) != 0)
+			{
+				aux = new dll_import_struct_t();
+				aux->dll_nameW = saved_dll_nameW;
+				dll_imports.push_back(aux);
+
+				fwprintf(stderr, L"[INFO] LoadLibraryW dll name: %S\n", saved_dll_nameW);
+				fwprintf(logfile, L"[INFO] LoadLibraryW dll name: %S\n", saved_dll_nameW);
+			}
+		}
+		saved_dll_nameA = nullptr;
+		saved_dll_nameW = nullptr;
+
+		aux->dll_address = dll_address;
+
+		fprintf(stderr, "[INFO] LoadLibrary returned: 0x%x\n", dll_address);
+		fprintf(logfile, "[INFO] LoadLibrary returned: 0x%x\n", dll_address);
+	}
 }
 
 void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name)
@@ -190,14 +274,14 @@ void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name)
 
 void hook_getprocaddress_after(ADDRINT function_address)
 {
-	check_first_thunk = true;
-
-	fprintf(stderr, "[INFO] GetProcAddress returned: 0x%x\n", function_address);
-	fprintf(logfile, "[INFO] GetProcAddress returned: 0x%x\n", function_address);
-
-	// add the function address to the last function
 	if (aux)
 	{
+		check_first_thunk = true;
+
+		fprintf(stderr, "[INFO] GetProcAddress returned: 0x%x\n", function_address);
+		fprintf(logfile, "[INFO] GetProcAddress returned: 0x%x\n", function_address);
+
+		// add the function address to the last function
 		aux->functions.at(
 			aux->functions.size() - 1
 		).function_address = function_address;

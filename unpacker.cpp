@@ -5,6 +5,7 @@
 
 
 FILE*				logfile; // log file handler
+pe_file*			pe_file_entropy;
  /*
  *   KNOB class to create arguments with PIN
  *   on this case, we will create an argument
@@ -107,11 +108,6 @@ int main(int argc, char *argv[])
 	*   instruction granularity.
 	*/
 	INS_AddInstrumentFunction(instrument_mem_cflow, NULL);
-
-	/*
-	*   Add the fini function
-	*/
-	PIN_AddFiniFunction(fini, NULL);
 
 	/*
 	*	Add instrumentation for IMG loading.

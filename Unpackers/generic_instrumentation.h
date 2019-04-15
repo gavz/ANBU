@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "importer.h"
+#include "pe_file.h"
 
 /****** Structures used for monitoring functions ******/
 typedef struct function_struct_t_
@@ -32,6 +33,9 @@ void hook_loadlibrarya_before(const char* dll_name);
 void hook_loadlibrary_after(ADDRINT dll_address);
 
 void hook_loadlibraryw_before(const wchar_t* dll_name);
+
+void hook_getmodulehandlea_before(const char* dll_name);
+void hook_getmodulehandlew_before(const wchar_t* dll_name);
 
 void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name);
 void hook_getprocaddress_after(ADDRINT function_address);

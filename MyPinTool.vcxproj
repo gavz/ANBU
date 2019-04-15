@@ -192,6 +192,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4530;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <AdditionalOptions>/export:main %(AdditionalOptions)</AdditionalOptions>
@@ -262,6 +263,7 @@
     <ClCompile Include="PE\memory_dumper.cpp" />
     <ClCompile Include="PE\nt_header.cpp" />
     <ClCompile Include="PE\optional_header.cpp" />
+    <ClCompile Include="PE\pe_file.cpp" />
     <ClCompile Include="PE\section_header.cpp" />
     <ClCompile Include="unpacker.cpp" />
     <ClCompile Include="Unpackers\generic_instrumentation.cpp" />
@@ -281,6 +283,7 @@
     <ClInclude Include="PE\memory_dumper.h" />
     <ClInclude Include="PE\nt_header.h" />
     <ClInclude Include="PE\optional_header.h" />
+    <ClInclude Include="PE\pe_file.h" />
     <ClInclude Include="PE\section_header.h" />
     <ClInclude Include="unpacker.h" />
     <ClInclude Include="Unpackers\generic_instrumentation.h" />

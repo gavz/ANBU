@@ -432,6 +432,10 @@ bool memory_dumper_t::parse_and_check_dos_header(ADDRINT address)
 
 bool memory_dumper_t::read_dos_stub(ADDRINT address)
 {
+	// dos stub is not mandatory
+	if (sizeof(pe_parser::dos_header_t::dos_header_struct_t) > dos_header->get_dos_header().e_lfanew)
+		return true;
+
 	size_t copied_size, size_to_copy = (dos_header->get_dos_header().e_lfanew -
 											sizeof(pe_parser::dos_header_t::dos_header_struct_t));
 	dos_stub = (uint8_t*) malloc(size_to_copy);
@@ -663,16 +667,6 @@ uint64_t memory_dumper_t::realign_pe()
 			new_section_raw_pointer	= section_vector[i - 1].pointerToRawData + section_vector[i - 1].sizeOfRawData;
 			section_vector[i].pointerToRawData = new_section_raw_pointer;
 		}
-		
-		if (new_virtual_section_size < sec.virtualSize)
-		{
-			if (optional_header->is_64_bit_binary())
-				new_virtual_section_size = new_virtual_section_size + optional_header->get_optional_image().optional_64.sectionAlignment;
-			else
-				new_virtual_section_size = new_virtual_section_size + optional_header->get_optional_image().optional_32.sectionAlignment;
-		}
-
-		sec.virtualSize = new_virtual_section_size;
 
 		if (i != (section_vector.size() - 1)) // if section is not the last one
 		{
@@ -706,15 +700,23 @@ bool memory_dumper_t::write_headers_to_file()
 		return false;
 	}
 
-	fprintf(stderr, "[INFO] Writing to file dos stub\n");
-	fprintf(logfile, "[INFO] Writing to file dos stub\n");
-	written_bytes = fwrite(dos_stub, (dos_header->get_dos_header().e_lfanew - sizeof(dos_header->get_dos_header())), 1, dumped_file);
 
-	if (!written_bytes)
+	if (dos_stub != nullptr)
 	{
-		fprintf(stderr, "[ERROR] not possible to write dos stub\n");
-		fprintf(logfile, "[ERROR] not possible to write dos stub\n");
-		return false;
+		fprintf(stderr, "[INFO] Writing to file dos stub\n");
+		fprintf(logfile, "[INFO] Writing to file dos stub\n");
+		written_bytes = fwrite(dos_stub, (dos_header->get_dos_header().e_lfanew - sizeof(dos_header->get_dos_header())), 1, dumped_file);
+
+		if (!written_bytes)
+		{
+			fprintf(stderr, "[ERROR] not possible to write dos stub\n");
+			fprintf(logfile, "[ERROR] not possible to write dos stub\n");
+			return false;
+		}
+	}
+	else
+	{
+		fseek(dumped_file, dos_header->get_dos_header().e_lfanew, SEEK_SET);
 	}
 
 	fprintf(stderr, "[INFO] Writing to file nt header\n");

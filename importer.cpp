@@ -88,6 +88,18 @@ std::vector<uint8_t> Importer::ImporterDumpToFile(uint32_t& rva_of_import_direct
 	if (dlls_and_functions.empty())
 		return buffer;
 
+	for (std::vector<import_directory_names_struct_t>::iterator it = dlls_and_functions.begin(); it != dlls_and_functions.end();)
+	{
+		if (it->name_or_ordinal.size() == 0)
+		{
+			it = dlls_and_functions.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
 	// order by first thunk
 	// so when we have to dump it
 	// we will have everything

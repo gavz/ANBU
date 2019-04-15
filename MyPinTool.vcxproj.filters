@@ -86,6 +86,9 @@
     <ClInclude Include="importer.h">
       <Filter>Header Files\PE\fixer</Filter>
     </ClInclude>
+    <ClInclude Include="PE\pe_file.h">
+      <Filter>Header Files\PE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="unpacker.cpp">
@@ -120,6 +123,9 @@
     </ClCompile>
     <ClCompile Include="importer.cpp">
       <Filter>Source Files\PE\fixer</Filter>
+    </ClCompile>
+    <ClCompile Include="PE\pe_file.cpp">
+      <Filter>Source Files\PE</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -24,13 +24,6 @@ namespace pe_parser
 				return;
 			}
 
-			if (data_directory_aux.virtualAddress > size_of_image ||
-				(data_directory_aux.virtualAddress + data_directory_aux.size) > size_of_image)
-			{
-				data_directory_correct = false;
-				return;
-			}
-		
 			data_directories.push_back(data_directory_aux);
 		}
 		/* I couldn't initialize the map with as many values, so I do it in the constructor */

@@ -13,11 +13,14 @@ namespace WINDOWS {
 
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
+
 
 typedef struct _write_memory
 {
