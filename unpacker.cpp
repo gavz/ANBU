@@ -50,7 +50,7 @@ EXCEPT_HANDLING_RESULT ExceptionHandler(THREADID tid, EXCEPTION_INFO *pExceptInf
 
 int main(int argc, char *argv[])
 {
-	fprintf(stderr, "+--<<< PIN-Pong by F9 >>>>--+\n");
+	fprintf(stderr, "+--<<< ANBU by F9 >>>>--+\n");
 	/*
 	*	As we will use symbols...
 	*/
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
 	PIN_AddInternalExceptionHandler(ExceptionHandler, NULL);
 
-	fprintf(logfile, "+--<<< PIN-Pong by F9 >>>>--+\n");
+	fprintf(logfile, "+--<<< ANBU by F9 >>>>--+\n");
 
 	fprintf(stderr, "------ unpacking binary ------\n");
 	fprintf(logfile, "------ unpacking binary ------\n");

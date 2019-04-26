@@ -381,6 +381,9 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 
 			 if (dll_imports.at(i)->functions.at(j).is_ordinal)
 			 {
+				 if (dll_imports.at(i)->functions.at(j).function_ordinal > 0xFFFF)
+					 continue;
+
 				 fprintf(stderr, "[INFO] Adding to the import Function: 0%x\n", dll_imports.at(i)->functions.at(j).function_ordinal);
 				 fprintf(logfile, "[INFO] Adding to the import Function: 0%x\n", dll_imports.at(i)->functions.at(j).function_ordinal);
 
@@ -388,6 +391,9 @@ bool dump_to_file(mem_cluster_t *c, ADDRINT target)
 			 }
 			 else
 			 {
+				 if (dll_imports.at(i)->functions.at(j).function_name.size() == 0 || dll_imports.at(i)->functions.at(j).function_name.size() > 256)
+					 continue;
+
 				 fprintf(stderr, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
 				 fprintf(logfile, "[INFO] Adding to the import Function: %s\n", dll_imports.at(i)->functions.at(j).function_name.c_str());
 

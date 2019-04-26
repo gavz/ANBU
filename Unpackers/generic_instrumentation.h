@@ -37,7 +37,7 @@ void hook_loadlibraryw_before(const wchar_t* dll_name);
 void hook_getmodulehandlea_before(const char* dll_name);
 void hook_getmodulehandlew_before(const wchar_t* dll_name);
 
-void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name);
+void hook_getprocaddress_before(ADDRINT dll_address, const char* function_name);
 void hook_getprocaddress_after(ADDRINT function_address);
 
 #endif // !GENERIC_INSTRUMENTATION_H

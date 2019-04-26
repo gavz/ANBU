@@ -1,6 +1,7 @@
 
 #include "generic_instrumentation.h"
 
+#define MAKEINTRESOURCEA(i) ((WINDOWS::LPSTR)((WINDOWS::ULONG_PTR)((WINDOWS::WORD)(i))))
 
 /************* EXTERN VARIABLES *************/
 extern FILE*						logfile; // log file handler
@@ -235,28 +236,63 @@ void hook_loadlibrary_after(ADDRINT dll_address)
 	}
 }
 
-void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name)
+void hook_getprocaddress_before(ADDRINT dll_address, const char* function_name)
 {
 	check_first_thunk = false;
 
 	// Create a new function
 	if (aux)
-	{
+	{	
 		function_struct_t func;
+		const char *filename;
 
-		if ((uintptr_t)dll_name <= 0xFFFF) // it is ordinal
+		if ((uintptr_t)function_name <= 0xFFFF) // it is ordinal
 		{
-			func.function_ordinal = (uint16_t)((uintptr_t)dll_name & 0xFFFF);
+			func.function_ordinal = (uint16_t)((uintptr_t)function_name & 0xFFFF);
 			func.is_ordinal = true;
 		}
 		else
 		{
-			func.function_name = dll_name;
+			func.function_name = function_name;
 			func.is_ordinal = false;
 		}
 
-		aux->functions.push_back(func);
 		PIN_LockClient();
+
+		if (func.is_ordinal)
+		{
+			if ((aux->dll_nameA.size() != 0 && (WINDOWS::GetProcAddress(WINDOWS::GetModuleHandleA(aux->dll_nameA.c_str()), MAKEINTRESOURCE(function_name)) == NULL) ||
+				(aux->dll_nameW.size() != 0 && (WINDOWS::GetProcAddress(WINDOWS::GetModuleHandleW(aux->dll_nameW.c_str()), MAKEINTRESOURCE(function_name)) == NULL))))
+			{
+				filename = strrchr(IMG_Name(IMG_FindByAddress(dll_address)).c_str(), '\\');
+
+				if (filename == NULL)
+					filename = IMG_Name(IMG_FindByAddress(dll_address)).c_str();
+				else
+					filename++;
+
+				aux->dll_nameA = filename;
+				aux->dll_nameW.erase();
+			}
+		}
+		else
+		{
+			if ((aux->dll_nameA.size() != 0 && (WINDOWS::GetProcAddress(WINDOWS::GetModuleHandleA(aux->dll_nameA.c_str()), function_name) == NULL) ||
+				(aux->dll_nameW.size() != 0 && (WINDOWS::GetProcAddress(WINDOWS::GetModuleHandleW(aux->dll_nameW.c_str()), function_name) == NULL))))
+			{
+				filename = strrchr(IMG_Name(IMG_FindByAddress(dll_address)).c_str(), '\\');
+
+				if (filename == NULL)
+					filename = IMG_Name(IMG_FindByAddress(dll_address)).c_str();
+				else
+					filename++;
+
+				aux->dll_nameA = filename;
+				aux->dll_nameW.erase();
+			}
+		}
+
+		aux->functions.push_back(func);
 		if (func.is_ordinal)
 		{
 			fprintf(stderr, "[INFO] dll 0x%x(%s), function 0x%x\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), func.function_ordinal);
@@ -264,8 +300,8 @@ void hook_getprocaddress_before(ADDRINT dll_address, const char* dll_name)
 		}
 		else
 		{
-			fprintf(stderr, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);
-			fprintf(logfile, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), dll_name);	
+			fprintf(stderr, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), function_name);
+			fprintf(logfile, "[INFO] dll 0x%x(%s), function %s\n", dll_address, IMG_Name(IMG_FindByAddress(dll_address)).c_str(), function_name);	
 		}
 		PIN_UnlockClient();
 

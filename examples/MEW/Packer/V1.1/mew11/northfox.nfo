@@ -1,0 +1,130 @@
+                            ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
+°°°°°°°°°°±±±±±±±±±²²²²²²²²²º Northfox presents º²²²²²²²²²±±±±±±±±±°°°°°°°°°°°
+                            ÈÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÍÍ¼
+                                      º
+                          ÉÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÍÍÍÍ»
+                          º                       º
+                          º     MEW 11 SE v1.2    º
+                          º                       º
+                          ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+
+
+°°±±²² Info ²²±±°°
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ Mew is an exe-packer program, based on LZMA and ApPack methods, written in ³
+³ MASM 32 and Visual C++ by Northfox. Originaly it was designed for small    ³
+³ files (4k,64k intros), but It supports bigger files too.                   ³
+³                                                                            ³
+³ Features:                               				     ³
+³     - TLS support                         				     ³ 
+³     - strip reloc tables                                                   ³
+³     - strip Delphi resources                                               ³
+³     - strip unused resources                                               ³
+³     - no antivirus warning (normal header)                                 ³
+³     - imports handeling but work with no-import files too		     ³
+³     - aPPack & LZMA compression 					     ³
+³     - overlays support(Flash,Multimedia Builder)                           ³
+³     - special windows gui						     ³
+³     - command line support						     ³
+³                                                                            ³
+³ Known bugs:                                                                ³
+³     - no .NET support (work in process)                                    ³
+³     - no export and delay import support                                   ³
+³     - no DLL support (work in process)                                     ³
+³     - no reloc handle support (just strip)                                 ³
+³     - no 64 bit support                                                    ³
+³     - don't recognize unknown overlays (e-mail me 4 requests)              ³
+³                                                                            ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+
+°°±±²² History ²²±±°°
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ 11 v1.2 - 17/09/2004 ³                                                     ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                                                     ³ 
+³                                                                            ³
+³ Changes:	                                                             ³
+³     - a LOT of bugfix (thx fReestYler,BrainSlayer,Victor,Daniel 4 report)  ³
+³     - added overlay support for Multimedia Builder                         ³
+³     - command line support changed                                         ³
+³     - recoded "special LZMA" code                                          ³
+³     - more 95/98/98SE/ME support                                           ³
+³                                                                            ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ 11 v1.1 - 22/08/2004 ³                                                     ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                                                     ³ 
+³                                                                            ³
+³ Changes:	                                                             ³
+³     - some bugfix (in packing proc - thx fReestYler)                       ³
+³     - Windows 95/98/98SE/ME support (plus 5 bytes in output)               ³
+³                                                                            ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ 11 v1.0 - 20/06/2004 ³                                                     ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                                                     ³ 
+³                                                                            ³
+³ Changes:	                                                             ³
+³     - LZMA compression added                                               ³
+³     - windows GUI                                                          ³
+³     - smaller decompress code                                              ³
+³     - special LZMA support (E8/E9)                                         ³
+³     - overlay support (flash)                                              ³
+³     - 100% recoded                                                         ³
+³                                                                            ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ 10 v1.0 - 06/03/2004 ³                                                     ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                                                     ³
+³                                                                            ³
+³ Changes:	                                                             ³
+³     - TLS support                                                          ³
+³     - better commandline support                                           ³
+³     - smaller decompress code                                              ³
+³     - no antivirus warning (normal header)                                 ³
+³     - overlay support (flash)                                              ³
+³     - support just org imports                                             ³
+³     - recoded resource-modul and import-modul                              ³
+³                                                                            ³ 
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ 9 beta 3 - 06/26/2004 (non public)³                                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ                                        ³
+³                                                                            ³ 
+³  First version of MEW, the exe-packer. Prev versions were *only* exe       ³ 
+³  modifiers.                                                                ³ 
+³                                                                            ³ 
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+°°±±²² Thx to ²²±±°°
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³                                                                            ³ 
+³ Bart..................for coding FSG (*js* is the best ideal of the year)  ³
+³ Ernani Weber................for testing MEW and making PE compression test ³
+³ Bitsum Technologies....................for special LZMA and a lot of info  ³
+³ Jibz....................................................for writing aPPack ³ 
+³ Igor Pavlov...............................................for writing LZMA ³ 
+³ friends,family,God.................for giving peace,food and place to live ³ 
+³                                                                            ³ 
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+°°±±²² Contactz ²²±±°°
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ Official Web Page  ³ http://northfox.uw.hu                                 ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ E-Mail             ³ northfox@uw.hu                                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³ IRC                ³ #hcc on the IRCNet                                    ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+
+°°±±²² Greetz ²²±±°°
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³                                                                            ³
+³            HCC - IMS - FCW - Bart - K3nny - all polish crackers            ³
+³                                                                            ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+
+                                                                    - Northfox

@@ -1,0 +1,170 @@
+<html>
+<head>
+<title>Mew11 SE v1.2 manual</title> 
+</head>
+<body>
+<table border="1" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" cellpadding="5">
+  <tr>
+    <td width="100%" bgcolor="#000080" colspan="2">
+    <p align="center"><b><font size="5" color="#FFA500"><span lang="en-us">Mew</span> 
+    11 SE v1.2<br>
+    </font></b><font color="#FFA500">manual</font></td>
+  </tr>
+  <tr>
+    <td >Welcome to Mew 11 SE manual. Mew is an exe-packer program, 
+    based on LZMA and ApPack methods, written in MASM 32 and Visual C++ by 
+    Northfox.<blockquote>
+      <p><span style="text-decoration: underline; letter-spacing: 3pt">
+      <font size="4"><span style="text-decoration: overline">New gui &amp; options</span></font></span></p>
+    </blockquote>
+    <p>Mew 11 SE has a new gui system. It's the default interface for Mew, but 
+    you can also use command line.<br>
+    There are several options, the options and the effects are the following:<br>
+&nbsp;</p>
+    <table border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber2">
+      <tr>
+        <td width="33%" bgcolor="#000080" align="center"><b>
+        <font color="#FFA500">option</font></b></td>
+        <td width="33%" bgcolor="#000080" align="center"><b>
+        <font color="#FFA500">if it's ON</font></b></td>
+        <td width="34%" bgcolor="#000080" align="center"><b>
+        <font color="#FFA500">if it's OFF</font></b></td>
+      </tr>
+      <tr>
+        <td width="33%" align="center">
+        <p align="center">Don't compress resources</td>
+        <td width="33%" align="center">
+        <p align="center">resources won't compressed, you can reach them as 
+        usual, but they are replaced in the file</td>
+        <td width="34%" align="center">
+        <p align="center">resources will be compressed, after decompression, 
+        each resource will be at the original place</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center" bgcolor="#C0C0C0">
+        <p align="center">Delete unimportant resources</td>
+        <td width="33%" align="center" bgcolor="#C0C0C0">
+        <p align="center">delete FILEINFO, XML resources</td>
+        <td width="34%" align="center" bgcolor="#C0C0C0">
+        <p align="center">every resource will be in the destination file</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center">
+        <p align="center">Slice resources</td>
+        <td width="33%" align="center">
+        <p align="center">try to separate different types of resources and pack 
+        them separated</p>
+        <p align="center"><br>
+        <b>!!you CANNOT use it with OVERLAYS!!</b></td>
+        <td width="34%" align="center">
+        <p align="center">resources will be handeling as usual data</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center" bgcolor="#C0C0C0">
+        <p align="center">Make backup</td>
+        <td width="33%" align="center" bgcolor="#C0C0C0">
+        <p align="center">create backup file (.bak)</td>
+        <td width="34%" align="center" bgcolor="#C0C0C0">
+        <p align="center">don't create backup file</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center">
+        <p align="center">use LZMA algoritm too</td>
+        <td width="33%" align="center">
+        <p align="center">try to pack with LZMA too</td>
+        <td width="34%" align="center">
+        <p align="center">use only ApPack</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center" bgcolor="#C0C0C0">Special LZMA (E8\E9)</td>
+        <td width="33%" align="center" bgcolor="#C0C0C0">LZMA will modify<b> 
+        long jump</b> and <b>call</b> offsets to get better packing ratio<br>
+        <br>
+        after depacking, everything will be replaced</td>
+        <td width="34%" align="center" bgcolor="#C0C0C0">use usual LZMA</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center">Strip relocs</td>
+        <td width="33%" align="center">strip reloc datas, because they have no 
+        effect on exe files</td>
+        <td width="34%" align="center">don't strip resources, but don't handle 
+        them either</td>
+      </tr>
+      <tr>
+        <td width="33%" align="center" bgcolor="#C0C0C0">Strip Delphi resources</td>
+        <td width="33%" align="center" bgcolor="#C0C0C0">strip VCLAL and 
+        PACKAGEINFO resources</td>
+        <td width="34%" align="center" bgcolor="#C0C0C0">don't strip special 
+        Delphi resources</td>
+      </tr>
+    </table>
+    <blockquote>
+      <p>&nbsp;<span style="text-decoration: underline; letter-spacing: 3pt"><font size="4"><span style="text-decoration: overline">Special 
+      files</span></font></span></p>
+    </blockquote>
+    <p>MEW sometimes failes on files, because they are <b>not</b> usual files. 
+    For example <b>Flash overlayed files</b> has not-in-rva-order resources. So 
+    the Slice resource method will fail, and the output file will be damaged. So,
+    <b>if a packed file won't work</b>, try to <b>turn off Slice resources 
+    option</b>.</p>
+    <p><font color="#000080">You can use <i>temp</i> diretory and <i>temp</i> 
+    filename, because MEW use random generated filenames during the packing 
+    process. (Changed in MEW 11 SE v1.2)</font></p>
+    <blockquote>
+      <p><span style="text-decoration: underline; letter-spacing: 3pt">
+      <font size="4"><span style="text-decoration: overline">Use Command line 
+      support</span></font></span></p>
+    </blockquote>
+    <p>Mew supports command line input. Use it like this:</p>
+    <p><code>mew11se.exe <i>infile</i> [-dont_use_lzma] [-dont_pack_res] [-dont_strip_reloc] 
+    [-dont_strip_delphi] [-force] [-backup] [-lzma_special] [-no_slice]</code></p>
+    <p><font color="#000080">Write <b>*</b> instead of <b>space</b> in <i>infile.
+    </i>(Changed in MEW 11 SE v1.2)</font></p>
+    <p><font face="Times New Roman">You can find the meening of the options in 
+    the Gui options table. Use</font><font face="Courier New"> </font><code><b>-force</b>
+    </code>when MEW fails with some errors, but you want to pack the file anyway.<br>
+    <font color="#000080">After packing program will exit automaticly. (Changed 
+    in MEW 11 SE v1.2)</font></p>
+    <blockquote>
+      <p><span style="text-decoration: underline; letter-spacing: 3pt">
+      <font size="4"><span style="text-decoration: overline">FAQ</span></font></span></p>
+    </blockquote>
+    <p><b>Q -</b> Why MEW?!<br>
+    <b>A -</b> My asm temp directory has the same name, every project starts 
+    here, so It's a lucky name.</p>
+    <p><b>Q -</b> When do you start to code and work on Mew? Especial on 
+    Mew11SE?<br>
+    <b>A -</b> Well, I code from the age of 10, let's see, that's 7 years. Work 
+    on Mew started in January,2004. The dev of MEW11SE started in April,2004.</p>
+    <p><b>Q -</b> Are you coding alone or have you got &quot;coder-friend&quot; and 
+    helpers?<br>
+    <b>A -</b> Well, I code alone, but I'm looking for professional developers 
+    for my new projects.</p>
+    <p><b>Q -</b> Where can I get patches or new versions of MEW?<br>
+    <b>A -</b> On my personal page (<a href="http://northfox.uw.hu">http://northfox.uw.hu</a>).</p>
+    <p><b>Q -</b> Why isn't MEW a shareware?<br>
+    <b>A -</b> Because I code for everyone, I'm not a company or a group, I'm 
+    just a boy, who codes for fun, and to won in the packing business :)</p>
+    <p><b>Q -</b> Will be MEW 12?<br>
+    <b>A -</b> Well, I don't know yet. I'm planning a .NET support and some 
+    upgrades but it depends on how much time will I have in the future.</p>
+    <p><b>Q -</b> Will be MEW became an exe-crypter too?<br>
+    <b>A -</b> No, because I got a nother project on that theme. It's currently not 
+    avaibled, It's under development. So wait now (2004/09/17) an visit my 
+    website later for that project.</p>
+    <blockquote>
+      <p><span style="letter-spacing: 3pt; text-decoration: underline">
+      <font size="4"><span style="text-decoration: overline">Contact and bugs</span></font></span></p>
+    </blockquote>
+    <p>You can contact me at, send bugs and <b>unworkable exes</b> here:</p>
+    <ul>
+      <li><a href="http://northfox.uw.hu">http://northfox.uw.hu</a> - personal 
+      page</li>
+      <li><a href="mailto:northfox@uw.hu">northfox@uw.hu</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+      - personal e-mail address</li>
+      <li><b>#hcc</b> room at<b> IRCNET</b></li>
+    </ul>
+    </td>
+  </tr>
+</table>
+</body></html>
